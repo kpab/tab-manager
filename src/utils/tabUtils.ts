@@ -15,6 +15,7 @@ export interface GroupedTab {
   url: string;
   favIconUrl?: string;
   type: TabType;
+  customName?: string;
 }
 
 // URLに基づいてタブタイプを検出する関数
