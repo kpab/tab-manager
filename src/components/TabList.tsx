@@ -41,6 +41,7 @@ const TabList: React.FC = () => {
   }
 
   // グループの表示設定
+  // src/components/TabList.tsx の groupConfig 配列を修正
   const groupConfig = [
     { type: "model" as TabType, title: "Model", icon: "M", color: "#f07178" },
     {
@@ -66,11 +67,15 @@ const TabList: React.FC = () => {
       type: "chat" as TabType,
       title: "コミュニケーション",
       icon: "💬",
-      color: "#89ddff",
+      // 色を変更 - より見やすい色に
+      color: "#7e57c2", // ティールグリーン
+      // 他の選択肢:
+      // "#64b5f6" (明るい青)
+      // "#7986cb" (インディゴ)
+      // "#4caf50" (グリーン)
     },
     { type: "other" as TabType, title: "その他", icon: "🔍", color: "#676e95" },
   ];
-
   return (
     <div className="p-2">
       {groupConfig.map((group) => (
@@ -78,7 +83,6 @@ const TabList: React.FC = () => {
           key={group.type}
           title={group.title}
           tabs={groupedTabs[group.type]}
-          type={group.type}
           icon={group.icon}
           color={group.color}
         />

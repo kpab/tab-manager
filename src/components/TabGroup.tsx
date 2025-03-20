@@ -1,11 +1,10 @@
 // src/components/TabGroup.tsx
 import React from "react";
-import { GroupedTab, TabType } from "../utils/tabUtils";
+import { GroupedTab } from "../utils/tabUtils";
 
 interface TabGroupProps {
   title: string;
   tabs: GroupedTab[];
-  type: TabType;
   icon: string;
   color: string;
 }
@@ -13,7 +12,7 @@ interface TabGroupProps {
 const TabGroup: React.FC<TabGroupProps> = ({
   title,
   tabs,
-  type,
+  // type は削除
   icon,
   color,
 }) => {
