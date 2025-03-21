@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { groupTabs, TabType, GroupedTab } from "../utils/tabUtils";
 import TabGroup from "./TabGroup";
+import { saveCustomTabName, getCustomTabData } from "../utils/storageUtils";
 
 const TabList: React.FC = () => {
   const [groupedTabs, setGroupedTabs] = useState<Record<TabType, GroupedTab[]>>(
@@ -16,6 +17,27 @@ const TabList: React.FC = () => {
     }
   );
   const [loading, setLoading] = useState(true);
+  // カスタムタブ名を保持する状態を追加
+  const [customTabNames, setCustomTabNames] = useState<Record<string, string>>(
+    {}
+  );
+
+  useEffect(() => {
+    // 保存されているカスタムタブ名を取得
+    const loadCustomTabNames = async () => {
+      const data = await getCustomTabData();
+      const names: Record<string, string> = {};
+
+      // URLをキーにしたオブジェクトに変換
+      Object.entries(data).forEach(([url, info]) => {
+        names[url] = info.customName;
+      });
+
+      setCustomTabNames(names);
+    };
+
+    loadCustomTabNames();
+  }, []);
 
   useEffect(() => {
     // Chromeのタブ情報を取得
@@ -24,6 +46,18 @@ const TabList: React.FC = () => {
         if (chrome && chrome.tabs) {
           const chromeTabs = await chrome.tabs.query({});
           const grouped = groupTabs(chromeTabs);
+
+          // カスタム名前を適用
+          Object.keys(grouped).forEach((key) => {
+            const groupType = key as TabType;
+            grouped[groupType] = grouped[groupType].map((tab) => {
+              if (customTabNames[tab.url]) {
+                return { ...tab, customName: customTabNames[tab.url] };
+              }
+              return tab;
+            });
+          });
+
           setGroupedTabs(grouped);
         }
         setLoading(false);
@@ -34,17 +68,19 @@ const TabList: React.FC = () => {
     };
 
     fetchTabs();
-  }, []);
+  }, [customTabNames]); // customTabNamesが変更されたらタブ情報を再取得
 
-  // タブ名のリネーム処理
-  const handleRenameTab = (tabId: number, newName: string) => {
+  // タブ名のリネーム処理を更新
+  const handleRenameTab = async (tabId: number, newName: string) => {
     // 全グループからタブを探して更新
     const updatedGroups = { ...groupedTabs };
+    let updatedTabUrl: string | null = null;
 
     Object.keys(updatedGroups).forEach((groupKey) => {
       const groupType = groupKey as TabType;
       updatedGroups[groupType] = updatedGroups[groupType].map((tab) => {
         if (tab.id === tabId) {
+          updatedTabUrl = tab.url;
           return { ...tab, customName: newName };
         }
         return tab;
@@ -53,7 +89,14 @@ const TabList: React.FC = () => {
 
     setGroupedTabs(updatedGroups);
 
-    // TODO: リネーム情報を永続化する（次のステップで実装）
+    // カスタム名前を保存
+    if (updatedTabUrl) {
+      await saveCustomTabName(updatedTabUrl, newName);
+      setCustomTabNames((prev) => ({
+        ...prev,
+        [updatedTabUrl!]: newName,
+      }));
+    }
   };
 
   if (loading) {
