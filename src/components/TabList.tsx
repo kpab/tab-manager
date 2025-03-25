@@ -1,13 +1,15 @@
 // src/components/TabList.tsx
 import React from 'react';
-import { Tab } from '../types';
+
+type DevTabCategory = 'MODEL' | 'CONTROLLER' | 'VIEW' | 'CODE' | 'DOCUMENT' | 'COMMUNICATION';
 
 interface TabListProps {
-  tabs: Tab[];
-  onTabClick: (tabId: string) => void;
-  onClose: (tabId: string) => void;
-  onRename: (tabId: string, currentTitle: string) => void;
-  isRenamingTab: string | null;
+  tabs: chrome.tabs.Tab[];
+  category: DevTabCategory;
+  onTabClick: (tabId: number) => void;
+  onClose: (tabId: number) => void;
+  onRename: (tabId: number, currentTitle: string) => void;
+  isRenamingTab: number | null;
   renameValue: string;
   onRenameChange: (value: string) => void;
   onRenameComplete: () => void;
@@ -15,6 +17,7 @@ interface TabListProps {
 
 const TabList: React.FC<TabListProps> = ({
   tabs,
+  category,
   onTabClick,
   onClose,
   onRename,
@@ -23,21 +26,19 @@ const TabList: React.FC<TabListProps> = ({
   onRenameChange,
   onRenameComplete,
 }) => {
-  // カテゴリカラーの取得
-  const getCategoryColor = (category: string) => {
-    const colors: Record<string, string> = {
-      MODEL: '#f07178',
-      CONTROLLER: '#82aaff',
-      VIEW: '#c3e88d',
-      CODE: '#c792ea',
-      DOCUMENT: '#ffcb6b',
-      COMMUNICATION: '#7e57c2',
-    };
-    return colors[category] || '#8a91a6';
+  // カテゴリの色マッピング
+  const categoryColors: Record<DevTabCategory, string> = {
+    MODEL: '#f07178',
+    CONTROLLER: '#82aaff',
+    VIEW: '#c3e88d',
+    CODE: '#c792ea',
+    DOCUMENT: '#ffcb6b',
+    COMMUNICATION: '#7e57c2',
   };
 
   // URLの短縮表示
-  const formatUrl = (url: string) => {
+  const formatUrl = (url: string | undefined) => {
+    if (!url) return '';
     try {
       const urlObj = new URL(url);
       return `${urlObj.hostname}${urlObj.pathname.length > 20 ? urlObj.pathname.substring(0, 20) + '...' : urlObj.pathname}`;
@@ -46,15 +47,16 @@ const TabList: React.FC<TabListProps> = ({
     }
   };
 
-  // Enter キー押下時のリネーム確定
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
+      onRenameComplete();
+    } else if (e.key === 'Escape') {
       onRenameComplete();
     }
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-1 bg-gray-900">
+    <div className="flex-1 overflow-y-auto p-3 bg-[#1f2430]">
       {tabs.length === 0 ? (
         <div className="text-center p-4 text-gray-400">
           このカテゴリにタブはありません。
@@ -63,10 +65,17 @@ const TabList: React.FC<TabListProps> = ({
         tabs.map((tab) => (
           <div
             key={tab.id}
-            className="mb-2 p-2 bg-gray-700 rounded overflow-hidden flex flex-col"
+            className="mb-3 overflow-hidden rounded-md bg-[#292d3e] hover:bg-opacity-80 transition-colors duration-150"
           >
-            <div className="flex items-start relative border-l-4" style={{ borderColor: getCategoryColor(tab.category) }}>
-              <div className="pl-2 flex-1 overflow-hidden" onClick={() => onTabClick(tab.id)}>
+            <div className="flex items-start">
+              <div
+                className="w-1 self-stretch"
+                style={{ backgroundColor: categoryColors[category] }}
+              />
+              <div
+                className="flex-1 p-3 pl-4 cursor-pointer"
+                onClick={() => tab.id && onTabClick(tab.id)}
+              >
                 {isRenamingTab === tab.id ? (
                   <input
                     type="text"
@@ -75,31 +84,35 @@ const TabList: React.FC<TabListProps> = ({
                     onBlur={onRenameComplete}
                     onKeyDown={handleKeyDown}
                     autoFocus
-                    className="w-full bg-gray-600 px-1 py-0.5 rounded text-white"
+                    className="w-full bg-[#363c51] px-2 py-1 rounded text-white mb-1"
                   />
                 ) : (
-                  <>
-                    <div className="font-bold truncate text-white">
-                      {tab.title}
-                    </div>
-                    <div className="text-xs text-gray-400 truncate">
-                      {formatUrl(tab.url)}
-                    </div>
-                  </>
+                  <div className="font-medium text-white text-base mb-1 truncate">
+                    {tab.title}
+                  </div>
                 )}
+                <div className="text-sm text-gray-400 truncate">
+                  {formatUrl(tab.url)}
+                </div>
               </div>
-              <div className="flex flex-col ml-2">
+              <div className="flex flex-col p-2 space-y-2">
                 <button
-                  className="mb-1 p-1 bg-gray-800 rounded hover:bg-gray-600 text-xs"
-                  onClick={() => onRename(tab.id, tab.title)}
+                  className="w-8 h-8 bg-[#363c51] rounded-md hover:bg-[#4a5173] flex items-center justify-center text-white"
+                  onClick={() => tab.id && onRename(tab.id, tab.title || '')}
                 >
-                  ✎
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                  </svg>
                 </button>
                 <button
-                  className="p-1 bg-gray-800 rounded hover:bg-red-500 text-xs"
-                  onClick={() => onClose(tab.id)}
+                  className="w-8 h-8 bg-[#363c51] rounded-md hover:bg-[#f07178] flex items-center justify-center text-white"
+                  onClick={() => tab.id && onClose(tab.id)}
                 >
-                  ×
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
                 </button>
               </div>
             </div>

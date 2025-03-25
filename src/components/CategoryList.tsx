@@ -1,12 +1,13 @@
 // src/components/CategoryList.tsx
 import React from 'react';
-import { TabCategory } from '../types';
+
+type DevTabCategory = 'MODEL' | 'CONTROLLER' | 'VIEW' | 'CODE' | 'DOCUMENT' | 'COMMUNICATION';
 
 interface CategoryListProps {
-    categories: TabCategory[];
-    selectedCategory: TabCategory;
-    onCategorySelect: (category: TabCategory) => void;
-    getCategoryCount: (category: TabCategory) => number;
+    categories: DevTabCategory[];
+    selectedCategory: DevTabCategory;
+    onCategorySelect: (category: DevTabCategory) => void;
+    getCategoryCount: (category: DevTabCategory) => number;
 }
 
 const CategoryList: React.FC<CategoryListProps> = ({
@@ -16,7 +17,7 @@ const CategoryList: React.FC<CategoryListProps> = ({
     getCategoryCount,
 }) => {
     // カテゴリの表示名マッピング
-    const categoryNames: Record<TabCategory, string> = {
+    const categoryNames: Record<DevTabCategory, string> = {
         MODEL: 'Model',
         CONTROLLER: 'Controller',
         VIEW: 'View',
@@ -26,67 +27,60 @@ const CategoryList: React.FC<CategoryListProps> = ({
     };
 
     // カテゴリの色マッピング
-    const categoryColors: Record<TabCategory, string> = {
-        MODEL: '#f07178',
-        CONTROLLER: '#82aaff',
-        VIEW: '#c3e88d',
-        CODE: '#c792ea',
-        DOCUMENT: '#ffcb6b',
-        COMMUNICATION: '#7e57c2',
-    };
-
-    // カテゴリの色をTailwindのクラス名に変換
-    const getCategoryColorClass = (category: TabCategory): string => {
-        const colorMap: Record<TabCategory, string> = {
-            MODEL: 'border-red-400',
-            CONTROLLER: 'border-blue-400',
-            VIEW: 'border-green-400',
-            CODE: 'border-purple-400',
-            DOCUMENT: 'border-yellow-400',
-            COMMUNICATION: 'border-indigo-400',
-        };
-        return colorMap[category];
-    };
-
-    // 選択中のカテゴリのスタイル
-    const getSelectedStyle = (category: TabCategory) => {
-        if (category === selectedCategory) {
-            return {
-                backgroundColor: categoryColors[category],
-                color: '#292d3e',
-                fontWeight: 'bold' as const,
-            };
-        }
-        return {};
+    const categoryColors: Record<DevTabCategory, { bg: string, border: string }> = {
+        MODEL: { bg: '#f07178', border: '#f07178' },
+        CONTROLLER: { bg: '#82aaff', border: '#82aaff' },
+        VIEW: { bg: '#c3e88d', border: '#c3e88d' },
+        CODE: { bg: '#c792ea', border: '#c792ea' },
+        DOCUMENT: { bg: '#ffcb6b', border: '#ffcb6b' },
+        COMMUNICATION: { bg: '#7e57c2', border: '#7e57c2' },
     };
 
     return (
-        <div className="w-28 bg-gray-800 overflow-y-auto">
+        <div className="w-52 bg-[#1f2430] py-2 overflow-y-auto">
             {categories.map((category) => (
                 <div
                     key={category}
                     className={`
-            m-1 p-2 rounded cursor-pointer flex items-center justify-between
+            mx-3 my-2 px-4 py-3 rounded-lg cursor-pointer
+            transition-colors duration-150 ease-in-out
+            flex items-center justify-between
             ${category === selectedCategory
                             ? ''
-                            : `bg-gray-700 border-l-4 ${getCategoryColorClass(category)}`
-                        }
+                            : 'border border-opacity-50 hover:bg-opacity-10 hover:bg-white'}
           `}
-                    style={getSelectedStyle(category)}
+                    style={{
+                        backgroundColor: category === selectedCategory ? categoryColors[category].bg : 'transparent',
+                        borderColor: category !== selectedCategory ? categoryColors[category].border : 'transparent',
+                    }}
                     onClick={() => onCategorySelect(category)}
                 >
                     <div className="flex items-center">
                         <div
-                            className="w-2 h-2 rounded-full mr-2"
+                            className="w-5 h-5 rounded-full mr-3 flex items-center justify-center"
                             style={{
                                 backgroundColor: category === selectedCategory
-                                    ? '#292d3e'
-                                    : categoryColors[category]
+                                    ? '#1f2430'
+                                    : categoryColors[category].bg
                             }}
-                        />
-                        <span>{categoryNames[category]}</span>
+                        >
+                            {category === selectedCategory && (
+                                <div className="w-2 h-2 rounded-full bg-white" />
+                            )}
+                        </div>
+                        <span
+                            className={`text-base ${category === selectedCategory ? 'text-[#1f2430] font-bold' : 'text-white'
+                                }`}
+                        >
+                            {categoryNames[category]}
+                        </span>
                     </div>
-                    <span>{getCategoryCount(category)}</span>
+                    <span
+                        className={`ml-2 text-base ${category === selectedCategory ? 'text-[#1f2430] font-bold' : 'text-white opacity-70'
+                            }`}
+                    >
+                        {getCategoryCount(category)}
+                    </span>
                 </div>
             ))}
         </div>

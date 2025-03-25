@@ -1,0 +1,234 @@
+/* src/components/Popup.css */
+.devtabs-popup {
+  width: 320px;
+  max-height: 600px;
+  background-color: #1f2430;
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+}
+
+.devtabs-header {
+  padding: 12px;
+  text-align: center;
+}
+
+.devtabs-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+
+.devtabs-search {
+  width: 100%;
+  padding: 8px 12px;
+  background-color: #363c51;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  font-size: 14px;
+}
+
+.devtabs-search::placeholder {
+  color: #8a91a6;
+}
+
+.devtabs-search:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(130, 170, 255, 0.5);
+}
+
+.devtabs-categories {
+  overflow-y: auto;
+}
+
+.devtabs-category {
+  margin-bottom: 8px;
+}
+
+.devtabs-category-header {
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.15s ease;
+}
+
+.devtabs-category-header:hover {
+  background-color: #2a3042;
+}
+
+.devtabs-category-header.active {
+  font-weight: bold;
+}
+
+.devtabs-category-name {
+  display: flex;
+  align-items: center;
+}
+
+.devtabs-category-icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.devtabs-tab-count {
+  font-size: 14px;
+}
+
+.devtabs-tabs {
+  padding: 8px;
+}
+
+.devtabs-tab {
+  background-color: #292d3e;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.devtabs-tab-content {
+  padding: 8px;
+  padding-right: 60px;
+  cursor: pointer;
+}
+
+.devtabs-tab-title {
+  font-weight: 500;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.devtabs-tab-url {
+  font-size: 12px;
+  color: #8a91a6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.devtabs-tab-actions {
+  position: absolute;
+  top: 0;
+  right: 4px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.devtabs-button {
+  padding: 4px;
+  background-color: transparent;
+  border: none;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.devtabs-button:hover {
+  background-color: #363c51;
+}
+
+.devtabs-button.close:hover {
+  background-color: #f07178;
+}
+
+.devtabs-footer {
+  padding: 8px 12px;
+  border-top: 1px solid #363c51;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.devtabs-total {
+  font-size: 14px;
+  color: #8a91a6;
+}
+
+.devtabs-organize-button {
+  padding: 6px 12px;
+  background-color: #82aaff;
+  color: #1f2430;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.devtabs-organize-button:hover {
+  background-color: #6b8cd5;
+}
+
+.devtabs-rename-input {
+  width: 100%;
+  background-color: #363c51;
+  border: none;
+  border-radius: 3px;
+  padding: 4px 8px;
+  color: white;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.devtabs-rename-input:focus {
+  outline: none;
+}
+
+/* カテゴリカラー */
+.devtabs-model {
+  border-color: #f07178;
+}
+.devtabs-controller {
+  border-color: #82aaff;
+}
+.devtabs-view {
+  border-color: #c3e88d;
+}
+.devtabs-code {
+  border-color: #c792ea;
+}
+.devtabs-document {
+  border-color: #ffcb6b;
+}
+.devtabs-communication {
+  border-color: #7e57c2;
+}
+
+/* カテゴリアクティブ色 */
+.devtabs-category-header.model.active {
+  background-color: #f07178;
+  color: #1f2430;
+}
+.devtabs-category-header.controller.active {
+  background-color: #82aaff;
+  color: #1f2430;
+}
+.devtabs-category-header.view.active {
+  background-color: #c3e88d;
+  color: #1f2430;
+}
+.devtabs-category-header.code.active {
+  background-color: #c792ea;
+  color: #1f2430;
+}
+.devtabs-category-header.document.active {
+  background-color: #ffcb6b;
+  color: #1f2430;
+}
+.devtabs-category-header.communication.active {
+  background-color: #7e57c2;
+  color: #1f2430;
+}

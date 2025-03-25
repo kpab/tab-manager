@@ -1,8 +1,8 @@
 // src/components/TabGroup.tsx の修正
 import React, { useState } from "react";
-import { categorizeTab } from '../utils/tabUtils';
+
 interface GroupedTab {
-  id: string;
+  id: number;
   group: string;
   title: string;
   customName?: string;
