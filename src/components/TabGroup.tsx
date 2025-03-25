@@ -34,21 +34,21 @@ const TabGroup: React.FC<TabGroupProps> = ({
   if (tabs.length === 0) return null;
 
   return (
-    <div className="mb-4">
+    <div className="mb-5">
       <div
-        className={`flex items-center px-2 py-1 rounded mb-1`}
+        className={`flex items-center px-3 py-2 rounded-md mb-2`}
         style={{ backgroundColor: color }}
       >
-        <span className="font-bold text-white mr-2">{icon}</span>
-        <h3 className="font-bold text-white">
+        <span className="font-bold text-white text-xl mr-3">{icon}</span>
+        <h3 className="font-bold text-white text-base">
           {title} ({tabs.length})
         </h3>
       </div>
-      <ul className="space-y-1 pl-2">
+      <ul className="space-y-2 pl-3">
         {tabs.map((tab) => (
           <li
             key={tab.id}
-            className="flex items-center p-1 hover:bg-secondary rounded text-sm cursor-pointer"
+            className="flex items-center p-2 hover:bg-secondary rounded-md text-sm cursor-pointer"
             onClick={() => {
               // 編集モードでなければクリックイベントを発火
               if (editingTabId !== tab.id && onTabClick) {
@@ -62,13 +62,17 @@ const TabGroup: React.FC<TabGroupProps> = ({
             }}
           >
             {tab.favIconUrl && (
-              <img src={tab.favIconUrl} alt="" className="w-4 h-4 mr-2" />
+              <img
+                src={tab.favIconUrl}
+                alt=""
+                className="w-5 h-5 mr-3 flex-shrink-0"
+              />
             )}
             {editingTabId === tab.id ? (
               // 編集モード
               <input
                 type="text"
-                className="bg-secondary text-text-primary w-full px-1 outline-none"
+                className="bg-secondary text-text-primary w-full px-2 py-1 rounded outline-none"
                 value={editingTabName}
                 onChange={(e) => setEditingTabName(e.target.value)}
                 onKeyDown={(e) => {

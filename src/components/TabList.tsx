@@ -141,7 +141,7 @@ const TabList: React.FC = () => {
   ];
 
   return (
-    <div className="p-2">
+    <div className="p-4">
       {groupConfig.map((group) => (
         <TabGroup
           key={group.type}
