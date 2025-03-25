@@ -1,26 +1,25 @@
 // src/components/TabList.tsx
 import React, { useEffect, useState } from "react";
 import { groupTabs, TabType, GroupedTab } from "../utils/tabUtils";
-import TabGroup from "./TabGroup";
-import { saveCustomTabName, getCustomTabData } from "../utils/storageUtils";
+import { getCustomTabData } from "../utils/storageUtils";
 
-const TabList: React.FC = () => {
-  const [groupedTabs, setGroupedTabs] = useState<Record<TabType, GroupedTab[]>>(
-    {
-      model: [],
-      controller: [],
-      view: [],
-      code: [],
-      doc: [],
-      chat: [],
-      other: [],
-    }
-  );
+// インターフェース定義
+interface TabListProps {
+  viewMode?: 'sidebar' | 'main';
+}
+
+const TabList: React.FC<TabListProps> = ({ viewMode = 'sidebar' }) => {
+  const [groupedTabs, setGroupedTabs] = useState<Record<TabType, GroupedTab[]>>({
+    model: [],
+    controller: [],
+    view: [],
+    code: [],
+    doc: [],
+    chat: [],
+    other: [],
+  });
   const [loading, setLoading] = useState(true);
-  // カスタムタブ名を保持する状態を追加
-  const [customTabNames, setCustomTabNames] = useState<Record<string, string>>(
-    {}
-  );
+  const [customTabNames, setCustomTabNames] = useState<Record<string, string>>({});
 
   useEffect(() => {
     // 保存されているカスタムタブ名を取得
@@ -50,7 +49,7 @@ const TabList: React.FC = () => {
           // カスタム名前を適用
           Object.keys(grouped).forEach((key) => {
             const groupType = key as TabType;
-            grouped[groupType] = grouped[groupType].map((tab) => {
+            grouped[groupType] = grouped[groupType].map(tab => {
               if (customTabNames[tab.url]) {
                 return { ...tab, customName: customTabNames[tab.url] };
               }
@@ -68,91 +67,92 @@ const TabList: React.FC = () => {
     };
 
     fetchTabs();
-  }, [customTabNames]); // customTabNamesが変更されたらタブ情報を再取得
+  }, [customTabNames]);
 
-  // タブ名のリネーム処理を更新
-  const handleRenameTab = async (tabId: number, newName: string) => {
-    // 全グループからタブを探して更新
-    const updatedGroups = { ...groupedTabs };
-    let updatedTabUrl: string | null = null;
-
-    Object.keys(updatedGroups).forEach((groupKey) => {
-      const groupType = groupKey as TabType;
-      updatedGroups[groupType] = updatedGroups[groupType].map((tab) => {
-        if (tab.id === tabId) {
-          updatedTabUrl = tab.url;
-          return { ...tab, customName: newName };
-        }
-        return tab;
-      });
-    });
-
-    setGroupedTabs(updatedGroups);
-
-    // カスタム名前を保存
-    if (updatedTabUrl) {
-      await saveCustomTabName(updatedTabUrl, newName);
-      setCustomTabNames((prev) => ({
-        ...prev,
-        [updatedTabUrl!]: newName,
-      }));
-    }
-  };
-  // タブクリック処理の追加
+  // タブクリック処理
   const handleTabClick = (tabId: number) => {
     if (chrome && chrome.tabs) {
       chrome.tabs.update(tabId, { active: true });
     }
   };
 
-  if (loading) {
-    return <div className="p-4">読み込み中...</div>;
-  }
-
   // グループの表示設定
   const groupConfig = [
     { type: "model" as TabType, title: "Model", icon: "M", color: "#f07178" },
-    {
-      type: "controller" as TabType,
-      title: "Controller",
-      icon: "C",
-      color: "#82aaff",
-    },
+    { type: "controller" as TabType, title: "Controller", icon: "C", color: "#82aaff" },
     { type: "view" as TabType, title: "View", icon: "V", color: "#c3e88d" },
-    {
-      type: "code" as TabType,
-      title: "その他のコード",
-      icon: "</>",
-      color: "#c792ea",
-    },
-    {
-      type: "doc" as TabType,
-      title: "ドキュメント",
-      icon: "📝",
-      color: "#ffcb6b",
-    },
-    {
-      type: "chat" as TabType,
-      title: "コミュニケーション",
-      icon: "💬",
-      color: "#7e57c2", // 深めの紫色
-    },
-    { type: "other" as TabType, title: "その他", icon: "🔍", color: "#676e95" },
+    { type: "code" as TabType, title: "その他のコード", icon: "</>", color: "#c792ea" },
+    { type: "doc" as TabType, title: "ドキュメント", icon: "📝", color: "#ffcb6b" },
+    { type: "chat" as TabType, title: "コミュニケーション", icon: "💬", color: "#89ddff" },
+    { type: "other" as TabType, title: "その他", icon: "🔍", color: "#676e95" }
   ];
 
+  if (loading) {
+    return <div className="p-2 text-text-primary">読み込み中...</div>;
+  }
+
+  if (viewMode === 'sidebar') {
+    return (
+      <div className="space-y-4">
+        {groupConfig.map((group) => (
+          <div key={group.type} className="mb-4">
+            {/* グループヘッダー */}
+            <div className="bg-[#676e95] rounded p-1.5 px-2 mb-2 flex justify-between items-center">
+              <span className="text-white text-xs font-bold">{group.title}</span>
+              <span className="text-white text-xs font-bold">{groupedTabs[group.type].length}</span>
+            </div>
+
+            {/* タブリスト */}
+            <div className="space-y-1">
+              {groupedTabs[group.type].map(tab => (
+                <div
+                  key={tab.id}
+                  className="flex items-center p-1.5 rounded text-xs bg-[#1e2132] hover:bg-[#3b4254] cursor-pointer"
+                  onClick={() => handleTabClick(tab.id)}
+                >
+                  {/* 左側のカラーバー */}
+                  <div className="w-1 h-full min-h-[20px] mr-2 self-stretch" style={{ backgroundColor: group.color }}></div>
+
+                  {/* アイコン */}
+                  <div className="w-5 h-5 flex items-center justify-center mr-2 rounded-full" style={{ backgroundColor: group.color }}>
+                    <span className="text-white text-xs font-bold">{group.icon}</span>
+                  </div>
+
+                  {/* タブタイトル */}
+                  <span className="truncate text-[#a6accd]">{tab.customName || tab.title}</span>
+                </div>
+              ))}
+              {groupedTabs[group.type].length === 0 && (
+                <div className="px-2 py-1 text-[#676e95] text-xs italic">タブがありません</div>
+              )}
+            </div>
+          </div>
+        ))}
+
+        {/* タスク/カレンダーウィジェット */}
+        <div className="mt-4">
+          <div className="bg-[#3b4254] rounded-md p-3">
+            <h3 className="text-white text-xs font-bold mb-2">今日のタスク</h3>
+            <div className="space-y-2">
+              <div className="bg-[#1e2132] p-2 rounded text-xs flex justify-between">
+                <span>⚠️ タブマネージャー開発</span>
+                <span className="text-[#f07178]">今日</span>
+              </div>
+              <div className="bg-[#1e2132] p-2 rounded text-xs flex justify-between">
+                <span>📅 デイリースクラム</span>
+                <span className="text-[#c3e88d]">10:00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // メインビューのデフォルト表示
   return (
-    <div className="p-4">
-      {groupConfig.map((group) => (
-        <TabGroup
-          key={group.type}
-          title={group.title}
-          tabs={groupedTabs[group.type]}
-          icon={group.icon}
-          color={group.color}
-          onRenameTab={handleRenameTab}
-          onTabClick={handleTabClick}
-        />
-      ))}
+    <div className="p-2">
+      <p className="text-text-primary">メインビューは開発中です。</p>
     </div>
   );
 };
