@@ -1,6 +1,14 @@
 // src/components/TabGroup.tsx の修正
 import React, { useState } from "react";
-import { GroupedTab } from "../utils/tabUtils";
+import { categorizeTab } from '../utils/tabUtils';
+interface GroupedTab {
+  id: string;
+  group: string;
+  title: string;
+  customName?: string;
+  favIconUrl?: string;
+  tabs: chrome.tabs.Tab[];
+}
 
 interface TabGroupProps {
   title: string;
@@ -22,6 +30,7 @@ const TabGroup: React.FC<TabGroupProps> = ({
   // 既存のstate
   const [editingTabId, setEditingTabId] = useState<number | null>(null);
   const [editingTabName, setEditingTabName] = useState<string>("");
+
 
   // リネームを確定する関数
   const confirmRename = () => {

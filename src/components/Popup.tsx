@@ -1,7 +1,7 @@
 // src/components/Popup.tsx
 import React, { useEffect, useState } from 'react';
 import { Tab, TabCategory } from '../types';
-import { categorizeTab } from '../utils/TabUtils';
+import { categorizeTab } from '../utils/tabUtils';
 import CategoryList from './CategoryList';
 import TabList from './TabList';
 

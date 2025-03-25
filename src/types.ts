@@ -5,7 +5,6 @@ export type TabCategory =
   | "CODE"
   | "DOCUMENT"
   | "COMMUNICATION";
-
 export interface Tab {
   id: string;
   title: string;
