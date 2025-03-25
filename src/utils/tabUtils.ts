@@ -1,97 +1,102 @@
-// src/utils/tabUtils.ts
+// src/utils/TabUtils.ts
+import { TabCategory } from "../types";
 
-export type TabType =
-  | "code"
-  | "model"
-  | "controller"
-  | "view"
-  | "doc"
-  | "chat"
-  | "other";
+/**
+ * タブを適切なカテゴリに分類します
+ */
+export const categorizeTab = (tab: chrome.tabs.Tab): TabCategory => {
+  const url = tab.url || "";
+  const title = tab.title || "";
 
-export interface GroupedTab {
-  id: number;
-  title: string;
-  url: string;
-  favIconUrl?: string;
-  type: TabType;
-  customName?: string;
-}
+  // URLと titleを小文字に変換して検索しやすくする
+  const lowerUrl = url.toLowerCase();
+  const lowerTitle = title.toLowerCase();
 
-// URLに基づいてタブタイプを検出する関数
-export const detectTabType = (url: string, title: string): TabType => {
-  // URLパターンをチェック
-  const urlLower = url.toLowerCase();
-  const titleLower = title.toLowerCase();
-
-  // GitBucket関連のコードファイルの検出
-  if (urlLower.includes("gitbucket") && urlLower.includes("/blob/")) {
-    // MVCパターンの検出
-    if (urlLower.includes("/models/") || urlLower.includes("model.")) {
-      return "model";
-    }
-    if (
-      urlLower.includes("/controllers/") ||
-      urlLower.includes("controller.")
-    ) {
-      return "controller";
-    }
-    if (urlLower.includes("/views/") || urlLower.includes("view.")) {
-      return "view";
-    }
-    return "code";
-  }
-
-  // ドキュメント系の検出
+  // MODEL関連の判定
   if (
-    urlLower.includes("docs.google.com") ||
-    urlLower.includes("confluence") ||
-    titleLower.includes("仕様") ||
-    titleLower.includes("spec") ||
-    titleLower.includes("document")
+    /model|entity|schema|database|db\/|repository|dao|dto/i.test(lowerUrl) ||
+    /model|entity|schema|database|repository|dao|dto/i.test(lowerTitle)
   ) {
-    return "doc";
+    return "MODEL";
   }
 
-  // コミュニケーションツール
+  // CONTROLLER関連の判定
   if (
-    urlLower.includes("chatwork") ||
-    urlLower.includes("slack.com") ||
-    urlLower.includes("teams.microsoft")
+    /controller|service|handler|action|route/i.test(lowerUrl) ||
+    /controller|service|handler|action|route/i.test(lowerTitle)
   ) {
-    return "chat";
+    return "CONTROLLER";
   }
 
-  // その他
-  return "other";
+  // VIEW関連の判定
+  if (
+    /view|component|template|jsx|tsx|css|scss|style|ui\//i.test(lowerUrl) ||
+    /view|component|template|style|ui|react|vue|angular/i.test(lowerTitle)
+  ) {
+    return "VIEW";
+  }
+
+  // ドキュメント関連の判定
+  if (
+    /docs|document|confluence|notion|google\.com\/document|readme|wiki|specification|spec|markdown|md$/i.test(
+      lowerUrl
+    ) ||
+    /documentation|manual|guide|spec|specification/i.test(lowerTitle)
+  ) {
+    return "DOCUMENT";
+  }
+
+  // コミュニケーションツール関連の判定
+  if (
+    /slack\.com|teams|discord|chat|mail|gmail|outlook|chatwork|messenger/i.test(
+      lowerUrl
+    )
+  ) {
+    return "COMMUNICATION";
+  }
+
+  // その他のコード関連の判定
+  if (
+    /github\.com|gitlab|bitbucket|\.js$|\.ts$|\.py$|\.java$|\.rb$|\.go$|\.php$|\.c$|\.cpp$|\.cs$/i.test(
+      lowerUrl
+    ) ||
+    /code|script|function|class|programming|algorithm|development/i.test(
+      lowerTitle
+    )
+  ) {
+    return "CODE";
+  }
+
+  // デフォルトは CODE カテゴリ
+  return "CODE";
 };
 
-// タブをグループ化する関数
-export const groupTabs = (
-  tabs: chrome.tabs.Tab[]
-): Record<TabType, GroupedTab[]> => {
-  // 初期グループを作成
-  const groups: Record<TabType, GroupedTab[]> = {
-    model: [],
-    controller: [],
-    view: [],
-    code: [],
-    doc: [],
-    chat: [],
-    other: [],
+/**
+ * カテゴリ名を取得する
+ */
+export const getCategoryName = (category: TabCategory): string => {
+  const names: Record<TabCategory, string> = {
+    MODEL: "Model",
+    CONTROLLER: "Controller",
+    VIEW: "View",
+    CODE: "Code",
+    DOCUMENT: "Docs",
+    COMMUNICATION: "Comm",
   };
+  return names[category];
+};
 
-  // タブを分類
-  tabs.forEach((tab) => {
-    const type = detectTabType(tab.url || "", tab.title || "");
-    groups[type].push({
-      id: tab.id || 0,
-      title: tab.title || "Untitled",
-      url: tab.url || "",
-      favIconUrl: tab.favIconUrl,
-      type,
-    });
-  });
-
-  return groups;
+/**
+ * カテゴリの色コードを取得する
+ */
+export const getCategoryColor = (category: TabCategory): string => {
+  const colors: Record<TabCategory, string> = {
+    MODEL: "#f07178",
+    CONTROLLER: "#82aaff",
+    VIEW: "#c3e88d",
+    CODE: "#c792ea",
+    DOCUMENT: "#ffcb6b",
+    COMMUNICATION: "#7e57c2",
+  };
+  return colors[category];
 };
