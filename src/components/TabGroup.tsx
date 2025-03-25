@@ -1,4 +1,4 @@
-// src/components/TabGroup.tsx
+// src/components/TabGroup.tsx の修正
 import React, { useState } from "react";
 import { GroupedTab } from "../utils/tabUtils";
 
@@ -7,7 +7,8 @@ interface TabGroupProps {
   tabs: GroupedTab[];
   icon: string;
   color: string;
-  onRenameTab: (tabId: number, newName: string) => void; // リネーム用コールバック追加
+  onRenameTab: (tabId: number, newName: string) => void;
+  onTabClick?: (tabId: number) => void; // タブクリック処理用のコールバック追加
 }
 
 const TabGroup: React.FC<TabGroupProps> = ({
@@ -16,10 +17,10 @@ const TabGroup: React.FC<TabGroupProps> = ({
   icon,
   color,
   onRenameTab,
+  onTabClick,
 }) => {
-  // 編集中のタブIDを保存する状態
+  // 既存のstate
   const [editingTabId, setEditingTabId] = useState<number | null>(null);
-  // 編集中のタブ名を保存する状態
   const [editingTabName, setEditingTabName] = useState<string>("");
 
   // リネームを確定する関数
@@ -48,6 +49,12 @@ const TabGroup: React.FC<TabGroupProps> = ({
           <li
             key={tab.id}
             className="flex items-center p-1 hover:bg-secondary rounded text-sm cursor-pointer"
+            onClick={() => {
+              // 編集モードでなければクリックイベントを発火
+              if (editingTabId !== tab.id && onTabClick) {
+                onTabClick(tab.id);
+              }
+            }}
             onDoubleClick={() => {
               // ダブルクリックで編集モードに入る
               setEditingTabId(tab.id);
@@ -77,6 +84,8 @@ const TabGroup: React.FC<TabGroupProps> = ({
                   // フォーカスを失ったら編集終了し変更を保存
                   confirmRename();
                 }}
+                // イベントの伝播を停止
+                onClick={(e) => e.stopPropagation()}
                 autoFocus
               />
             ) : (

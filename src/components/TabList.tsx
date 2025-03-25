@@ -148,6 +148,30 @@ const TabList: React.FC = () => {
       ))}
     </div>
   );
+
+  // タブクリック処理の追加
+  const handleTabClick = (tabId: number) => {
+    if (chrome && chrome.tabs) {
+      chrome.tabs.update(tabId, { active: true });
+    }
+  };
+
+  // 実際にrenderするコードを更新
+  return (
+    <div className="p-2">
+      {groupConfig.map((group) => (
+        <TabGroup
+          key={group.type}
+          title={group.title}
+          tabs={groupedTabs[group.type]}
+          icon={group.icon}
+          color={group.color}
+          onRenameTab={handleRenameTab}
+          onTabClick={handleTabClick} // タブクリック処理の追加
+        />
+      ))}
+    </div>
+  );
 };
 
 export default TabList;
